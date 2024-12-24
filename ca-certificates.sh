@@ -32,7 +32,7 @@ else
 fi
 
 echo -e "${INFO} Doanload ca-certificates.crt ..."
-${DOWNLOADER} https://raw.githubusercontent.com/P3TERX/ca-certificates.crt/download/ca-certificates.crt ||
+${DOWNLOADER} https://raw.githubusercontent.com/dasima4396/aria2.sh/master/ca-certificates.crt ||
     ${DOWNLOADER} https://cdn.jsdelivr.net/gh/P3TERX/ca-certificates.crt@download/ca-certificates.crt ||
     ${DOWNLOADER} https://gh.p3terx.workers.dev/ca-certificates.crt/download/ca-certificates.crt
 
