@@ -88,8 +88,7 @@ Download_aria2() {
 }
 Download_aria2_conf() {
     mkdir -p "${aria2_conf_dir}" && cd "${aria2_conf_dir}"
-    wget -O -t2 -T3 https://github.com/dasima4396/aria2.sh/releases/download/download/aria2.conf.zip
-    unzip aria2.conf.zip
+    wget -O -t2 -T3 https://github.com/dasima4396/aria2.sh/releases/download/download/aria2.conf.zip | unzip
         [[ ! -s ${PROFILE} ]] && {
             echo -e "${Error} '${PROFILE}' 下载失败！清理残留文件..."
             rm -vrf "${aria2_conf_dir}"
