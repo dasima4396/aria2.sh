@@ -91,4 +91,4 @@ RPC 密钥：随机生成，可使用选项`7. 修改 配置文件`自定义
 
 ### Trackers 来源
 
-([XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection)
+[XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection)
