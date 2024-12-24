@@ -35,7 +35,7 @@ apt install wget curl ca-certificates
 
 * 下载脚本
 ```
-wget -N git.io/aria2.sh && chmod +x aria2.sh
+wget -N https://raw.githubusercontent.com/dasima4396/aria2.sh/master/aria2.sh && chmod +x aria2.sh
 ```
 
 * 运行脚本
