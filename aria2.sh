@@ -200,7 +200,7 @@ Installation_dependency() {
         apt-get install -y wget curl nano ca-certificates findutils jq tar gzip dpkg
     fi
     if [[ ! -s /etc/ssl/certs/ca-certificates.crt ]]; then
-        wget -qO- git.io/ca-certificates.sh | bash
+        wget -qO- https://raw.githubusercontent.com/dasima4396/aria2.sh/master/ca-certificates.sh | bash
     fi
 }
 Install_aria2() {
