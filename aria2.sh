@@ -95,7 +95,6 @@ Download_aria2_conf() {
             rm -vrf "${aria2_conf_dir}"
             exit 1
         }
-    done
     sed -i "s@^\(dir=\).*@\1${download_path}@" ${aria2_conf}
     sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf_dir}/*.conf
     sed -i "s@^\(rpc-secret=\).*@\1$(date +%s%N | md5sum | head -c 20)@" ${aria2_conf}
