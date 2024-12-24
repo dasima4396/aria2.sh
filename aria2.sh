@@ -88,8 +88,7 @@ Download_aria2() {
 }
 Download_aria2_conf() {
     mkdir -p "${aria2_conf_dir}" && cd "${aria2_conf_dir}"
-    wget -O aria2.conf.zip https://github.com/dasima4396/aria2.sh/releases/download/download/aria2.conf.zip && unzip aria2.conf.zip
-        }
+    wget -O aria2.conf.zip https://github.com/dasima4396/aria2.sh/releases/download/download/aria2.conf.zip && unzip aria2.conf.zip   
     sed -i "s@^\(dir=\).*@\1${download_path}@" ${aria2_conf}
     sed -i "s@/root/.aria2/@${aria2_conf_dir}/@" ${aria2_conf_dir}/*.conf
     sed -i "s@^\(rpc-secret=\).*@\1$(date +%s%N | md5sum | head -c 20)@" ${aria2_conf}
