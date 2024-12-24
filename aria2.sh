@@ -146,7 +146,6 @@ Install_aria2() {
     echo -e "${Info} 开始安装/配置 依赖..."
     Installation_dependency
     echo -e "${Info} 开始下载/安装 主程序..."
-    check_new_ver
     Download_aria2
     echo -e "${Info} 开始下载/安装 Aria2 完美配置..."
     Download_aria2_conf
