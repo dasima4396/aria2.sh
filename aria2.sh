@@ -74,52 +74,10 @@ check_crontab_installed_status() {
 check_pid() {
     PID=$(ps -ef | grep "aria2c" | grep -v grep | grep -v "aria2.sh" | grep -v "init.d" | grep -v "service" | awk '{print $2}')
 }
-check_new_ver() {
-    aria2_new_ver=$(
-        {
-            wget -t2 -T3 -qO- "https://api.github.com/repos/P3TERX/Aria2-Pro-Core/releases/latest" ||
-                wget -t2 -T3 -qO- "https://gh-api.p3terx.com/repos/P3TERX/Aria2-Pro-Core/releases/latest"
-        } | grep -o '"tag_name": ".*"' | head -n 1 | cut -d'"' -f4
-    )
-    if [[ -z ${aria2_new_ver} ]]; then
-        echo -e "${Error} Aria2 最新版本获取失败，请手动获取最新版本号[ https://github.com/P3TERX/Aria2-Pro-Core/releases ]"
-        read -e -p "请输入版本号:" aria2_new_ver
-        [[ -z "${aria2_new_ver}" ]] && echo "取消..." && exit 1
-    fi
-}
-check_ver_comparison() {
-    read -e -p "是否更新(会中断当前下载任务) ? [Y/n] :" yn
-    [[ -z "${yn}" ]] && yn="y"
-    if [[ $yn == [Yy] ]]; then
-        check_pid
-        [[ ! -z $PID ]] && kill -9 ${PID}
-        check_sys
-        Download_aria2 "update"
-        Start_aria2
-    fi
-}
 Download_aria2() {
-    update_dl=$1
-    if [[ $ARCH == i*86 || $dpkgARCH == i*86 ]]; then
-        ARCH="i386"
-    elif [[ $ARCH == "x86_64" || $dpkgARCH == "amd64" ]]; then
-        ARCH="amd64"
-    elif [[ $ARCH == "aarch64" || $dpkgARCH == "arm64" ]]; then
-        ARCH="arm64"
-    elif [[ $ARCH == "armv7l" || $dpkgARCH == "armhf" ]]; then
-        ARCH="armhf"
-    else
-        echo -e "${Error} 不支持此 CPU 架构。"
-        exit 1
-    fi
-    while [[ $(which aria2c) ]]; do
-        echo -e "${Info} 删除旧版 Aria2 二进制文件..."
-        rm -vf $(which aria2c)
-    done
-    DOWNLOAD_URL="https://github.com/P3TERX/Aria2-Pro-Core/releases/download/${aria2_new_ver}/aria2-${aria2_new_ver%_*}-static-linux-${ARCH}.tar.gz"
+    DOWNLOAD_URL="https://github.com/dasima4396/aria2.sh/releases/download/download/aria2-static-linux-amd64-1.37.0-2024-12.tar.gz"
     {
-        wget -t2 -T3 -O- "${DOWNLOAD_URL}" ||
-            wget -t2 -T3 -O- "https://gh-acc.p3terx.com/${DOWNLOAD_URL}"
+        wget -t2 -T3 -O- "${DOWNLOAD_URL}"
     } | tar -zx
     [[ ! -s "aria2c" ]] && echo -e "${Error} Aria2 下载失败 !" && exit 1
     [[ ${update_dl} = "update" ]] && rm -f "${aria2c}"
@@ -129,28 +87,9 @@ Download_aria2() {
     echo -e "${Info} Aria2 主程序安装完成！"
 }
 Download_aria2_conf() {
-    PROFILE_URL1="https://p3terx.github.io/aria2.conf"
-    PROFILE_URL2="https://aria2c.now.sh"
-    PROFILE_URL3="https://cdn.jsdelivr.net/gh/P3TERX/aria2.conf@master"
-    PROFILE_LIST="
-aria2.conf
-clean.sh
-core
-script.conf
-rclone.env
-upload.sh
-delete.sh
-dht.dat
-dht6.dat
-move.sh
-LICENSE
-"
     mkdir -p "${aria2_conf_dir}" && cd "${aria2_conf_dir}"
-    for PROFILE in ${PROFILE_LIST}; do
-        [[ ! -f ${PROFILE} ]] && rm -rf ${PROFILE}
-        wget -N -t2 -T3 ${PROFILE_URL1}/${PROFILE} ||
-            wget -N -t2 -T3 ${PROFILE_URL2}/${PROFILE} ||
-            wget -N -t2 -T3 ${PROFILE_URL3}/${PROFILE}
+    wget -O -t2 -T3 https://github.com/dasima4396/aria2.sh/releases/download/download/aria2.conf.zip
+    unzip aria2.conf.zip
         [[ ! -s ${PROFILE} ]] && {
             echo -e "${Error} '${PROFILE}' 下载失败！清理残留文件..."
             rm -vrf "${aria2_conf_dir}"
@@ -179,9 +118,7 @@ Service_aria2() {
         chkconfig --add aria2
         chkconfig aria2 on
     else
-        wget -N -t2 -T3 "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/service/aria2_debian" -O /etc/init.d/aria2 ||
-            wget -N -t2 -T3 "https://cdn.jsdelivr.net/gh/P3TERX/aria2.sh@master/service/aria2_debian" -O /etc/init.d/aria2 ||
-            wget -N -t2 -T3 "https://gh-raw.p3terx.com/P3TERX/aria2.sh/master/service/aria2_debian" -O /etc/init.d/aria2
+        wget -N -t2 -T3 "https://raw.githubusercontent.com/dasima4396/aria2.sh/master/service/aria2_debian" -O /etc/init.d/aria2
         [[ ! -s /etc/init.d/aria2 ]] && {
             echo -e "${Error} Aria2服务 管理脚本下载失败 !"
             exit 1
@@ -563,7 +500,7 @@ crontab_update_start() {
     crontab -l >"/tmp/crontab.bak"
     sed -i "/aria2.sh update-bt-tracker/d" "/tmp/crontab.bak"
     sed -i "/tracker.sh/d" "/tmp/crontab.bak"
-    echo -e "\n0 7 * * * /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_dir}/tracker.log" >>"/tmp/crontab.bak"
+    echo -e "\n0 7 * * * /bin/bash <(wget -qO- https://raw.githubusercontent.com/dasima4396/aria2.sh/master/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_dir}/tracker.log" >>"/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
     if [[ -z $(crontab_update_status) ]]; then
@@ -589,9 +526,9 @@ Update_bt_tracker() {
     check_installed_status
     check_pid
     [[ -z $PID ]] && {
-        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
+        bash <(wget -qO- https://raw.githubusercontent.com/dasima4396/aria2.sh/master/tracker.sh) ${aria2_conf}
     } || {
-        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC
+        bash <(wget -qO- https://raw.githubusercontent.com/dasima4396/aria2.sh/master/tracker.sh) ${aria2_conf} RPC
     }
 }
 Update_aria2() {
@@ -657,7 +594,7 @@ Set_iptables() {
     fi
 }
 Update_Shell() {
-    sh_new_ver=$(wget -qO- -t1 -T3 "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1) && sh_new_type="github"
+    sh_new_ver=$(wget -qO- -t1 -T3 "https://raw.githubusercontent.com/dasima4396/aria2.sh/master/aria2.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1) && sh_new_type="github"
     [[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
     if [[ -e "/etc/init.d/aria2" ]]; then
         rm -rf /etc/init.d/aria2
@@ -667,7 +604,7 @@ Update_Shell() {
     if [[ -n $(crontab_update_status) ]]; then
         crontab_update_stop
     fi
-    wget -N "https://raw.githubusercontent.com/P3TERX/aria2.sh/master/aria2.sh" && chmod +x aria2.sh
+    wget -N "https://raw.githubusercontent.com/dasima4396/aria2.sh/master/aria2.sh" && chmod +x aria2.sh
     echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 
